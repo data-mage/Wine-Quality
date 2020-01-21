@@ -1,0 +1,494 @@
+
+R Analysis of Red Wine Quality by Eric Fraser
+========================================================
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+
+# Installing packages and calling libraries.
+
+#install.packages('ggplot2', repos = 'http://cran.rstudio.com')
+#install.packages('dplyr', repos = 'http://cran.rstudio.com')
+#install.packages('reshape2', repos = 'http://cran.rstudio.com')
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+
+```
+
+```{r echo=FALSE, Load_the_Data}
+
+#Sets the working directory and imports CSV file. 
+
+setwd('C:/Users/Eric/Desktop/C751 Project 3')
+wineData <- read.csv('wineQualityReds.csv')
+
+```
+
+
+The data loaded into the 'wineData' variable above compares roughly 1600 red wine varieties, and measures several characteristics about them. Variables include acidity, density, pH, sulphates, and several other factors measured against a 'quality' measurement. The goal of the analysis of this data set is to determine what characteristics are shared by higher quality wines, and what characteristics are shared by lower quality wines. 
+
+# Univariate Plots Section
+
+Below you can see the 12 red wine characterisics we are dealing with, along with a summary of basic statistics for each one.
+
+
+```{r echo=FALSE, Univariate_Plots}
+
+#Summary statistics of wineData
+
+names(wineData)
+summary(wineData)
+
+```
+
+
+Because quality is a subjective measure in this dataset, it is important to get a baseline. The below graph shows how many wines were rated at each quality level. The 'average' quality is a wine rated at about 5.6, meaning an wine rated a 6 or higher could be considered above average, with 7s and 8s being exceptional wines.
+
+Conversely, wines rated at 5 could be considered 'below average', with wines rated at 3 or 4 being far below average. 
+
+
+```{r echo=FALSE}
+
+#Quality Count Histogram
+
+qplot(x = as.factor(quality), data = wineData,
+      xlab = 'Comparative Quality',
+      ylab = 'Count')
+
+```
+
+
+Now we want to look at all of the characteristics of wine that could affect quality. The 8 parameters we are looking at (including quality) are:
+
+1. Quality
+2. pH
+3. Alcohol
+4. Citric Acid
+5. Free Sulfur Dioxide
+6. Total Sulfur Dioxide
+7. Sulphates
+8. Residual Sugar
+
+The below graph shows how the pH levels of the wines in the data set are distributed. You can see that most wines will fall between 3.0 and 3.5 pH, which is quite acidic. 
+
+
+```{r echo=FALSE}
+
+#pH Count Histogram
+
+qplot(x = pH, data = wineData, bins = 30, color = I("white"),
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the Alcohol levels of the wines in the data set are distributed. No red wines have an alcohol content below 8, and almost no wines have an alcohol content above 14. 
+
+
+```{r echo=FALSE}
+
+#Alcohol Count Histogram
+
+qplot(x = alcohol, data = wineData, binwidth = .2, color = I("white"),
+      xlab = 'Alcohol Content',
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the citric acid levels of the wines in the data set are distributed. As we can see below, there are a large number of wines with no citric acid. The 2nd highest grouping appears to be around the .50 mark. Very few wines have a citric acid content above 0.75.
+
+
+```{r echo=FALSE}
+
+#Citric Acid Count Histogram
+
+qplot(x = citric.acid, data = wineData, binwidth = .04, color = I("white"),
+      xlab = 'Citric Acid',
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the free sulfur dioxide levels of the wines in the data set are distributed
+
+
+```{r echo=FALSE}
+
+#Free Sulfur Dioxide Count Histogram
+
+qplot(x = free.sulfur.dioxide, data = wineData, binwidth = 1, color = I("white"),
+      xlab = 'Free Sulfur Dioxide',
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the total sulfer dioxide levels of the wines in the data set are distributed
+
+
+```{r echo=FALSE}
+
+#Total Sulfuf Dioxide Count Histogram
+
+qplot(x = total.sulfur.dioxide, data = wineData, binwidth = 5, 
+      color = I("white"),
+      xlab = 'Total Sulfur Dioxide',
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the sulphate levels of the wines in the data set are distributed. The sulphate levels of our data set follow mostly a normal distribution witha a long tail out to the right. Most red wines have a sulphate level less than 1.0, with some wines extending all the way up to double that. 
+
+
+```{r echo=FALSE}
+
+#Suplhates Count Histogram
+
+qplot(x = sulphates, data = wineData, binwidth = .05, color = I("white"),
+      xlab = 'Sulphates',
+      ylab = 'Count')
+
+```
+
+
+The below graph shows how the residual sugar levels of the wines in the data set are distributed. The distribution of sugar levels in this data set indicated a long tail, with the vast majority of wines having a residual sugar content less than 4, but a significant minority having a residual sugar content between 4 and 16. 
+
+
+```{r echo=FALSE}
+
+#Residual Sugar Count Histogram
+
+qplot(x = residual.sugar, data = wineData, binwidth = .2, color = I("white"),
+      xlab = 'Residual Sugar Content',
+      ylab = 'Count')
+
+```
+
+
+# Univariate Analysis
+
+There are 1599 records in this data set. There are 12 variables in the wine data set, only one of these is qualitative (quality), the rest are quantitative measurements. 
+
+None of the quantitative measurements are levelled and there is a lot of subjectivity in the quality measurement. Unlike the sample project and the diamond dataset, where increasing cut, color, and clarity quality leads to an objectively more pristine diamond, increasing or decreasing variables relating to wine is a matter of personal preference. 
+
+Other Observations:
+
+1. Wine quality ranges from 3 to 8, with the mean quality sitting at 5.6/10. 
+
+2. The mode of the citric acid measurement is 0 added citric acid, but only about 220 wine varieties have 0 citric acid. 
+
+3. There is hardly any variance in wine density and its effects appear to be minimal.
+
+4. Amounts of residual sugars range from 0.9 to 15.5, but the median residual sugars is 2.2, meaning anything much higher than 5 residual sugars is rare. 
+
+### What is/are the main feature(s) of interest in your dataset?
+
+The main features of interest in the dataset are pH, Alcohol content, and residual sugar, and how they affect the quality of red wines in general.
+
+### What other features in the dataset do you think will help support your investigation into your feature(s) of interest?
+
+Sulphur Dioxide/Sulphates are added to wine to prevent it from spoiling. These preservatives are anecdotally known to dull the flavor of wine so I'm curious to see if the sulphate count is at all correlated with quality of wine. 
+
+### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
+
+The main operation used to tidy data was altering the bin size of each graph to something that made sense. We want an appropriate bin size to notice trends without approaching the data at a needlessly granular level. 
+
+The data in the graphs above followed mostly predictable normally distributed trends, with some graphs skewed to the right with a long tail. Nothing was extremely unusual visually about these distributions. 
+
+
+# Bivariate Plots Section
+
+Now that we have one dimensional distributions, we will now look at how some of these variables affect quality of wine. As stated above, we are particularly interested in the effect of acidity, or pH level, alcohol content, and residual sugar content on the quality of the wine in our data set. 
+
+Below is a plot of quality against pH level:
+
+```{r echo=FALSE, Bivariate_Plots}
+
+
+ggplot(aes(x = pH, y = quality), binwidth = .1, data = wineData) +
+  geom_point(alpha = 1/4)
+
+#scatter plot with alpha = .25 to alleviate overplotting
+
+pH <- group_by(wineData, pH)
+pH.summary <- summarise(pH, quality_mean = mean(quality),
+                        quality_median = median(quality),
+                        n = n())
+
+#Summary of pH wine data
+
+ordered.pH.summary <- arrange(pH.summary, quality_mean)
+
+#Ordered summary of pH wine data
+
+```
+
+Though all wines in this data set are acidic in the 2.0 to 4.0 pH range. If we take the quality average from earlier (5.5) and use that as a baseline for what the 'average' wine is rated, there doesn't seem to be much of a correlation between pH and wine quality. Taking a look at the ordered.pH.summary table, it could be argued that more acidic wines tend to have a higher quality rating, but there is not a clear - cut correlation. Plenty of more basic wines have an above average quality rating. 
+
+Below is another plot of alcohol content compared to quality rating:
+
+```{r echo=FALSE}
+
+ggplot(aes(x = alcohol, y = quality), data = wineData) +
+  geom_point(alpha = 1/5) + 
+  geom_smooth(method = "lm")
+
+#scatter plot with alpha = .20 to reduce overplotting
+#Best fit line added for trends
+
+alcohol <- group_by(wineData, alcohol)
+
+alcohol.summary <- summarise(alcohol, quality_mean = mean(quality))
+
+#Summary of alcohol data
+
+```
+
+Utilizing ggplot's jitter function at an alpha of 1/5 plus a best fit line gives us a clear picture of how alcohol content compares to quality of red wines in our data set. As you can tell from the graph and trend line, there is a positive correlation between alcohol content and quality of red wine. 
+
+Almost every single wine having above a 13 alcohol content was above average in terms of quality.
+
+Notably, there is one outlier of a wine that contains an absurdly high alcohol level of 15 that is of below average quality.
+
+Based on the above findings I would be confident in saying that a higher alcohol content is generally correlated with a higher quality wine, but only to a point. It's hard to say based on the data since there is only one point past an alcohol content of 14, but it seems like common sense to say that a needlessly high alcohol content would spoil the flavor of an otherwise quality wine. 
+
+Our final bivariate plot compares quality and residual sugars:
+
+```{r echo=FALSE}
+
+ggplot(aes(x = residual.sugar, y = quality), data = wineData) + 
+  geom_point(alpha = 1/4)
+
+#scatter plot with alpha =.25 graphing quality against residual sugars
+
+```
+
+The above graph of residual sugar compared to quality seems to show little correlation between the quality of a red wine and the amount of residual sugar contained within it. However, it is interesting to note that wines above a residual sugar level of 10 tend to score pretty mediocre on the quality axis.
+
+A possible conclusion based on the information above appears to be this: 
+
+Wines with low residual sugar tend to be above average or well below average, while wines with high residual sugar do not vary much from the average.
+
+If you want to play it safe, ensure your wine has residual sugar. 
+
+# Bivariate Analysis
+
+Some of the relationships explored in the bivariate plot section seem to show a correlation to quality, and others do not. Of the three factors explored, Alcohol content had the strongest relationship, pH had a minimal relationship, and residual sugar was somewhere between the two. 
+
+### What was the strongest relationship you found?
+
+The strongest relationship found in the bivariate analysis section was by far the relationship between alcohol content and quality. Based on the data provided it would be fair to say that in general, the more alcohol a wine has the higher it was rated in quality. It is important to note that this appears to work only to a point -- you could imagine a wine with excess alcohol would not be very high quality. 
+
+# Multivariate Plots Section
+
+In this first plot, I would like to explore a topic mentioned above in the univariate plot section. It is supposed 'common knowledge' that sulphates are a wine preservative that dulls the taste of wine. 
+
+The below code graphs sulphate count against alcohol content, the number one variable from the bivariate plot section known to correlate to wine quality, with the addition of a binary color for each plot point. 
+
+The wines were graded on a 0-10 scale for quality. The below graph separates those wines below a 5 from those above 5 by color: red for lower than average wines, blue for higher than average wines.
+
+## Plot 1
+
+```{r echo=FALSE, Multivariate_Plots}
+
+#Chops quality data into 2 buckets
+
+wineData$quality.bigbucket <- cut(wineData$quality, breaks = seq(0, 10, by = 5))
+
+#Table to show count above and below the average
+
+table(wineData$quality.bigbucket)
+
+#Plots alcohol against quality against sulphates
+
+ggplot(aes(x = sulphates, y = alcohol), data = wineData) + 
+  geom_point(aes(color = wineData$quality.bigbucket))
+
+```
+
+You can see that there isn't really a correlation between sulphates and alcohol, but there are a disproportionate number of blue dots in the upper right portion of the distribution. Interestingly it appears that higher sulphate count is correlated to higher quality, only if the wine is high in alcohol content.
+
+For the 2nd multivariate graph I wanted to see how alcohol content affected pH, and how both of these related to quality. Similarly to the graph above, the graph below shows us the relationship between the three, with an added trendline for clarity. 
+
+## Plot 2
+```{r echo=FALSE}
+
+#As above, chops quality data into 2 buckets
+
+wineData$quality.bigbucket <- cut(wineData$quality, breaks = seq(0, 10, by = 5))
+
+#Table to show how many wines in each bucket
+
+table(wineData$quality.bigbucket)
+
+#Plot of alcohol vs. pH vs. quality with an added best fit line to show trend
+
+ggplot(aes(x = pH, y = alcohol), data = wineData) + 
+  geom_point(aes(color = wineData$quality.bigbucket)) + 
+  geom_smooth(method = "lm")
+
+```
+
+Ethanol is known typically to be a weak base, meaning its pH level is somewhere between 7 and 8. It would stand to reason then that the more alcohol content in a wine, the more basic it is. The trendline above shows this -- generally speaking the more alcohol a wine has the higher its pH level.
+
+Additionally along the pH and alcohol axis, there really isn't a clear trend. We see the discoveries from before repeated -- namely that wines higher in alcohol tend to have a higher rated quality. pH still doesn't seem to have much of an effect on the overall quality of wine.
+
+Our final multivariate plot shows the relationship between sulphates, total sulfur dioxide, and Free Sulfur Dioxide. I was curious if the the total sulfur dioxide minus the free sulfur dioxide was related to the measurement for sulphates since both qualities contain sulfur. Along the X axis is the rating for bonded sulfur dioxide, and along the Y Axis and color coded are the sulphate levels. 
+
+## Plot 3
+```{r echo=FALSE}
+
+#Chops sulphates data into small buckets
+
+wineData$sulphates.bigbucket <- cut(wineData$sulphates, breaks = seq(0, 2, by = .05))
+
+#Shows how many wines per bucket
+
+table(wineData$quality.bigbucket)
+
+#Plots sulphates vs. total sulfur dioxide - free sulfur dioxide. 
+#Added best fit line, and alpha = .25 to reduce overplotting
+
+ggplot(aes(x = total.sulfur.dioxide - free.sulfur.dioxide, y = sulphates), data = wineData) + 
+  geom_point(aes(color = wineData$sulphates.bigbucket), alpha = 1/4) +
+    geom_smooth(method = "lm")
+
+```
+
+I was expecting a trend between these three variables, but there does not seem to be much to gain from this plot. Many wines with a low number of bonded sulfur dioxide have above average sulphate levels, and many wines with above average bonded sulfur dioxide have comparatively lower sulphates.
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of looking at your feature(s) of interest?
+
+Plot one compared alcohol, sulfates, and quality.
+
+Plot two compared alcohol, pH and quality. 
+
+Plot three compared total sulfur dioxide, free sulfur dioxide, and sulphates.
+
+In Plot one, the relationship between alcohol and sulfates was strengthened unexpectedly. 
+
+Plot two's analysis confirmed my though that because alcohol is basic. I was curious if the data reflected this and it did. There wasn't an incredibly strong trend for this, but it certainly appears that wines with more alcohol are on average more basic than wines with lower alcohol levels. 
+
+I was expecting total sulfur dioxide, free sulfur dioxide, and suplhates to be closely linked since all three descriptors contain sulfur. I was surprised to find that there wasn't much of a correlation between the variables. 
+
+
+### Were there any interesting or surprising interactions between features?
+
+Of the three relationships analyzed, Plot 1 dealing with sulphates, alcohol, and quality was particularly striking compared to the two others. 
+
+I had always heard anecdotally that sulphates were the preservatives in wine, and that they weakened the flavor of wine. It was interesting to discover that there was a positive correlation between wine sulphates and quality. 
+
+
+------
+
+# Final Plots and Summary
+
+### Plot One
+
+For this first plot, I wanted to get a more granular view of the data from plot 1 of the multivariate analyis. The plot below is the same as the forementioned plot with the bin width for quality reduced from 5 to 1, and a proper title added. 
+
+```{r echo=FALSE, Plot_One}
+
+#Similar to plot 1 above, chops quality data into more buckets for 
+#more granular analysis. 
+
+wineData$quality.smallbucket <- cut(wineData$quality, breaks = seq(3, 8, by = 1))
+
+#Table to show how many wines per bucket
+
+table(wineData$quality.smallbucket)
+
+#jitter plot to graph alcohol vs sulphates vs quality in a more granular way. 
+#Themes added to enchance readability 
+
+ggplot(aes(x = sulphates, y = alcohol), data = wineData) + 
+  geom_point(aes(color = wineData$quality.smallbucket)) + 
+  ggtitle("Alcohol vs. Sulphates vs. Quality (Bucket Size = 1)") +
+  xlab(expression(Sulphates~(g/dm^{3}))) + ylab("Alcohol (% of volume)") +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "right", 
+        legend.direction = "horizontal") +
+  scale_color_brewer(palette = "RdYlBu", name = "Quality", direction = -1) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.background = element_rect(fill = "darkgrey"))
+
+
+```
+
+### Description for Plot One
+
+The distribution in the above graph brings even more clarity to the previous version. The 'warm' colored dots represent lower quality, while the 'cold' colored dots represent higher quality. There seems to be a clear trend to the upper right, meaning the highest quality wines seem to have between .75 and 1.0 sulphates and an alcohol level between 11 and 14. 
+
+### Plot Two
+
+This plot was another of the two bivariate plots I was most struck by. Bucket size was set to the same as above, ranging from 3 to 8 by 1 to enhance the quality demension. A trend line was established using the gam method in geom_smooth, which attaches the formula y ~ s(x, bs = "cs") as a trend line over the data.
+
+```{r echo=FALSE, Plot_Two}
+
+#Breaks wine into buckets by quality
+
+wineData$quality.bigbucket <- cut(wineData$quality, breaks = seq(3, 8, by = 1))
+
+#Table to show how many wines in each bucket
+
+table(wineData$quality.bigbucket)
+
+#Plot graphing alcohol vs sulphates vs quality with smaller bucket size
+#trend line added with method = auto function
+#themes added for enhanced readability
+
+ggplot(aes(x = pH, y = alcohol), data = wineData) + 
+  geom_point(aes(color = wineData$quality.bigbucket)) + 
+  ggtitle("Alcohol vs. Sulphates vs. Quality (Bucket Size = 1)") +
+  xlab("pH (0-14)") + ylab("Alcohol (% of volume)") +
+  theme(text = element_text(size = 14)) +
+  theme(legend.position = "right", 
+        legend.direction = "horizontal") +
+  geom_smooth(method = "auto") +
+  scale_color_brewer(palette = "RdYlBu", name = "Quality", direction = -1) +
+  theme(panel.grid.minor = element_blank(), 
+        panel.background = element_rect(fill = "darkgrey"))
+
+```
+
+### Description Two
+
+The data confirms that in general the more alcohol a wine has, the more basic it is. pH didn't have much of an effect on quality measurements, but it did seem to correlate to alcohol as expected. 
+
+### Plot Three
+
+The next plot was chosen from section 1 because it was the only plot besides the quality plot from the first section that was not a skewed normal distribution. Cleaning up was done around the title and labels but the plot takes the same data as the univariate plot above. 
+```{r echo=FALSE, Plot_Three}
+
+#histogram graphing count of pH
+#Themes and labesls added for enhanced readability. 
+
+ggplot(aes(x = pH), data = wineData) + 
+  geom_bar(aes(stat = "identity")) + 
+  ggtitle("Unskewed Normal Distribution") +
+  xlab(expression(Sulphates~(g/dm^{3}))) + ylab("Count") +
+  theme(text = element_text(size = 14)) +
+  theme_minimal() 
+
+```
+
+### Description Three
+
+As mentioned above this plot is the only plot besides the plot of quality to feature an unskewed normal distribution. Almost every other plot is skewed left with a long tail out to the right. 
+
+------
+
+# Reflection
+
+This was my first time really digging into R and I really enjoyed using the language. The number of cool visualizations and data manipulation you can do with a relatively small amount of code was a fun realization. 
+
+I learned a few things about wine and what makes a good or bad wine. Interestingly, wines high in sulfates and alcohol tended to score better in quality. Additionally, acidity doesn't have much of an effect on wine quality, but alcohol actually has an effect on acidity. Seeing how these variables interact with each other and discovering correlations (or lack of correlations) between variables was interesting to dive into. 
+
+One of the struggles of this analysis was that the data didn't contain data that I could easily understand right away. Prior knowledge of the attributes of the data set would be helpful, as there was only so much I could do in the scope of the project to learn about what the red wine community believe good and bad wine consists of. I would be interested to continue using this data set in conjunction with finding what the 'common knowledge' in the red wine industry to see if the finding from this report confirm or contradict what is already known.  
+
+Overall this was an interesting project and interesting data set and I look forward to continuing development of my R skills in the future. 
